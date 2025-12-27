@@ -1,0 +1,5 @@
+{
+  "name": "LifePlay Itemcreator",
+  "description": "A professional-grade modding tool for LifePlay (2023_04_Stable) that generates item scripts, shop integration code, and AI-powered textures/icons for custom game items.",
+  "requestFramePermissions": []
+}
