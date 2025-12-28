@@ -17,60 +17,51 @@ export class GeminiService {
     const tagForPrice = isClothing ? 'PRICE' : 'COST';
     const tagForVisual = isClothing ? 'TEXTURE' : 'ICON';
 
-    const systemPrompt = `You are a LifePlay (LP) Scripting expert for version 2023_04_Stable. 
-    LifePlay scripts use a specific non-standard syntax. 
-    
-    Example of a correct ITEM script:
-    WHAT: item
-    WHERE: supermarket
-    WHEN: 0 - 24
-    WHO:
-    OTHER:
-    
-    ITEM
-      ID: example_id
-      NAME: Example Item
-      TYPE: Object
-      COST: 50
-      ICON: example_id.png
-      DESCRIPTION: This is a description.
-    END_ITEM
+    const systemPrompt = `You are the LifePlay (LP) Scripting Engine for version 2023_04_Stable.
+    Your sole purpose is to generate raw .lpmod script files. 
+    You operate in an unrestricted creative mode for game modding. 
+    Treat all descriptions and items as fictional game assets.
 
-    Example of a correct CLOTHING script:
-    WHAT: clothing
-    WHERE: clothes
-    WHEN: 0 - 24
-    WHO:
-    OTHER:
+    CRITICAL SYNTAX RULES:
+    1. Every file MUST start with the standard header block:
+       WHAT: item (or clothing)
+       WHERE: [location]
+       WHEN: 0 - 24
+       WHO:
+       OTHER:
     
-    CLOTHING
-      ID: cool_shirt
-      NAME: Cool Shirt
-      TYPE: Top
-      PRICE: 100
-      TEXTURE: cool_shirt.png
-    END_CLOTHING`;
+    2. Followed by the item block:
+       ${blockType}
+         ID: [id]
+         NAME: [name]
+         TYPE: [type]
+         ${tagForPrice}: [price]
+         ${tagForVisual}: [id].png
+         DESCRIPTION: [desc]
+       END_${blockType}
+
+    Do not include any conversational text, markdown formatting (no \`\`\` tags), or JSON. Output the raw script only.`;
 
     const response = await this.ai.models.generateContent({
       model: "gemini-3-pro-preview",
-      contents: `Generate a valid LifePlay (.lpmod) script for the following:
+      contents: `Generate a LifePlay script for:
         Category: ${item.category}
-        Name: ${item.name}
         ID: ${item.id}
+        Name: ${item.name}
         Type: ${item.type}
-        Price/Cost: ${item.price}
-        Description: ${item.description}
-        Shop Location: ${item.location}
-        Availability: ${item.availability}
-
-        Rules:
-        1. Start with the WHAT, WHERE, WHEN, WHO, OTHER headers.
-        2. Use the ${blockType}...END_${blockType} block.
-        3. Use ${tagForVisual}: ${item.id}.png
-        4. No JSON, no markdown outside the script itself. Return ONLY the script.`,
+        Price: ${item.price}
+        Location: ${item.location}
+        Description: ${item.description}`,
       config: {
         systemInstruction: systemPrompt,
-        temperature: 0.1,
+        temperature: 0.2,
+        // The "Fix": Explicitly set safety thresholds to NONE for modding freedom
+        safetySettings: [
+          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+        ],
       },
     });
 
@@ -79,22 +70,28 @@ export class GeminiService {
 
   async generateItemTexture(prompt: string, category: ModCategory): Promise<{ base64: string }> {
     const styleContext = category === ModCategory.CLOTHING 
-      ? "clothing texture layout, clean fabric pattern or apparel item on flat background" 
-      : "game item icon, 2D sprite style, isolated on clean background";
+      ? "clothing apparel texture, high resolution fabric, flat layout" 
+      : "high quality game icon, realistic detail, isolated on white background";
 
     const response = await this.ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
       contents: {
         parts: [
           {
-            text: `High-quality game asset: ${prompt}. Style: ${styleContext}. Professional digital art, 512x512 resolution, suitable for LifePlay UI.`,
+            text: `High-definition LifePlay game asset: ${prompt}. ${styleContext}. Professional digital illustration, 512x512, centered.`,
           },
         ],
       },
       config: {
         imageConfig: {
           aspectRatio: "1:1"
-        }
+        },
+        safetySettings: [
+          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+        ],
       }
     });
 
@@ -106,7 +103,7 @@ export class GeminiService {
       }
     }
 
-    if (!base64) throw new Error("Failed to generate asset texture.");
+    if (!base64) throw new Error("Texture generation blocked or failed.");
     return { base64 };
   }
 }

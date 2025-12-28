@@ -54,7 +54,7 @@ const App: React.FC = () => {
         base64Image: image.base64
       });
     } catch (err: any) {
-      setError(err.message || 'An error occurred. Please try again.');
+      setError(err.message || 'Generation failed. Check API key and content guidelines.');
     } finally {
       setLoading(false);
     }
@@ -63,7 +63,6 @@ const App: React.FC = () => {
   const handleDownload = () => {
     if (!assets) return;
     
-    // Download script
     const scriptBlob = new Blob([assets.script], { type: 'text/plain' });
     const scriptUrl = URL.createObjectURL(scriptBlob);
     const scriptLink = document.createElement('a');
@@ -71,7 +70,6 @@ const App: React.FC = () => {
     scriptLink.download = `${item.id}.lpmod`;
     scriptLink.click();
 
-    // Download image
     const imageLink = document.createElement('a');
     imageLink.href = assets.imageUrl!;
     imageLink.download = `${item.id}.png`;
@@ -91,14 +89,17 @@ const App: React.FC = () => {
             </div>
             <p className="text-slate-400">Validated for LifePlay 2023_04_Stable_64bit</p>
           </div>
-          <div className="flex gap-2 text-xs uppercase font-bold tracking-wider">
-            <span className="bg-slate-800 px-3 py-1 rounded border border-slate-700 text-cyan-400">Engine: LP Script v2</span>
-            <span className="bg-slate-800 px-3 py-1 rounded border border-slate-700 text-green-400">Stable: Yes</span>
+          <div className="flex items-center gap-2">
+            <div className="flex gap-2 text-[10px] uppercase font-bold tracking-wider">
+              <span className="bg-orange-500/20 px-3 py-1 rounded border border-orange-500/30 text-orange-400 flex items-center gap-1">
+                <i className="fa-solid fa-unlock text-[8px]"></i> Unrestricted Mode
+              </span>
+              <span className="bg-slate-800 px-3 py-1 rounded border border-slate-700 text-cyan-400">Engine: LP Script v2</span>
+            </div>
           </div>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Config Panel */}
           <div className="lg:col-span-4 space-y-6">
             <section className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm">
               <h2 className="text-lg font-bold mb-6 flex items-center gap-2 border-b border-slate-800 pb-4">
@@ -126,7 +127,7 @@ const App: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2">
-                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Internal ID (Must Match Folder)</label>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Internal ID (Matches Folder)</label>
                     <input name="id" value={item.id} onChange={handleInputChange} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2 text-cyan-400 font-mono text-sm focus:border-cyan-500 outline-none" />
                   </div>
                   <div className="col-span-2">
@@ -174,12 +175,10 @@ const App: React.FC = () => {
             </section>
           </div>
 
-          {/* Result Panel */}
           <div className="lg:col-span-8 space-y-6">
             {assets ? (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Texture Preview */}
                   <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 flex flex-col items-center">
                     <h3 className="text-xs font-bold text-slate-500 uppercase mb-4 w-full">Generated {item.category === ModCategory.CLOTHING ? 'Texture' : 'Icon'}</h3>
                     <div className="bg-slate-950 p-2 rounded-xl border border-slate-800 shadow-inner">
@@ -188,7 +187,6 @@ const App: React.FC = () => {
                     <p className="mt-4 text-xs font-mono text-cyan-400">{item.id}.png</p>
                   </div>
 
-                  {/* Installation Help */}
                   <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-2xl p-6">
                     <h3 className="text-xs font-bold text-cyan-400 uppercase mb-4">Installation Steps</h3>
                     <div className="space-y-4 text-sm text-slate-300">
@@ -205,13 +203,12 @@ const App: React.FC = () => {
                         <p>Place <code className="text-cyan-400">{item.id}.png</code> inside the same folder.</p>
                       </div>
                       <button onClick={handleDownload} className="w-full mt-4 bg-white text-slate-900 py-2 rounded-lg font-bold hover:bg-slate-200 transition-colors">
-                        Download Package (.zip mimic)
+                        Download Package
                       </button>
                     </div>
                   </div>
                 </div>
 
-                {/* Script Preview */}
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
                   <div className="bg-slate-800/50 px-6 py-3 border-b border-slate-700 flex justify-between items-center">
                     <div className="flex items-center gap-2">
@@ -238,7 +235,7 @@ const App: React.FC = () => {
                   <i className="fa-solid fa-box-open text-4xl text-slate-700"></i>
                 </div>
                 <h3 className="text-xl font-bold text-slate-500">Ready for Construction</h3>
-                <p className="max-w-xs text-slate-600 mt-2">Configure your item on the left and click "Build Mod Package" to generate your LifePlay assets.</p>
+                <p className="max-w-xs text-slate-600 mt-2">Configure your item and click "Build Mod Package". Safety layers are configured for full creative freedom.</p>
               </div>
             )}
           </div>
