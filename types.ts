@@ -30,7 +30,8 @@ export enum ClothingSlot {
   WRIST = 'Wrist',
   EAR = 'Ear',
   FINGER = 'Finger',
-  WAIST = 'Waist'
+  WAIST = 'Waist',
+  HANDS = 'Hands'
 }
 
 export enum ShopLocation {
@@ -57,14 +58,21 @@ export interface LPItem {
   
   // Item/Clothing Specific
   type: ItemType | string; 
-  slot?: ClothingSlot; // Used for clothing "Used on feet/top/etc"
+  slot?: ClothingSlot; 
   price: number;
   location: ShopLocation;
   
-  // Character Specific
-  gender?: 'Male' | 'Female' | 'Random';
-  ageRange?: string; 
-  personality?: string;
+  // Interaction Logic (Smart Detection)
+  rehydrate?: boolean;
+  satiate?: boolean;
+  energyBoost?: boolean;
+  intoxicate?: boolean;
+  
+  // Registration in Lists
+  registerAsUniform?: boolean;
+  registerInOutfits?: boolean;
+  outfitCategory?: string; // work, sports, swim, formal, casual, sleepwear, underwear
+  clothingTags?: string; // comma separated tags e.g. "skirt, tight, leather"
   
   // Scene/Activity Shared Triggers
   triggerActions?: string;
@@ -72,27 +80,31 @@ export interface LPItem {
   triggerTime?: string;
   actorConditions?: string;
   plotPrompt?: string;
+  sceneActors?: string; 
+  linkSceneToItem?: boolean; 
 
-  // Interaction Logic
-  rehydrate?: boolean; // If item is a drink
-  satiate?: boolean;   // If item is food
-  energyBoost?: boolean;
-  
   minutes?: string;
   timeoutMinutes?: number;
   effects?: string;
   actionConditions?: string;
   moveFirst?: boolean;
   sceneAlways?: string;
-  animation?: string;
+  animation?: string; // Animation to trigger (e.g., 'drink', 'eat', 'wear')
   
   // AI Prompt for Visuals
   imagePrompt: string;
+
+  // Metadata used in UI and registry generation
+  gender?: 'Female' | 'Male' | 'Unisex';
+  availability?: string;
+  ageRange?: string;
+  personality?: string;
 }
 
 export interface GeneratedAssets {
   manifest: string;
-  script: string; 
+  script: string;
+  registryEntries?: string; 
   imageUrl: string | null;
   base64Image: string | null;
 }
